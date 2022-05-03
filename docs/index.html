@@ -1,12 +1,5 @@
 <html><head>
 <script src="IParse.js"></script>
-<title>MCH2022: A practical approach to parsing</title>
-</head><body>
-
-<h1>Workshop: A practical approach to parsing</h1>
-
-<h2>What is 3 + 4?</h2>
-
 <script>
 <!--
 
@@ -162,25 +155,91 @@ function parseSimpleExpr()
 	document.SimpleExpr.output.value = eval_ast(ast)
 }
 
+function showHide(button)
+{
+	var x = document.getElementById(button.id+"text")
+	if (button.textContent == "show")
+	{
+		x.style.display = "block"
+		button.textContent = "hide"
+	}
+	else
+	{
+		x.style.display = "none"
+		button.textContent = "show"
+	}
+}
 
 //--></script>
+<title>MCH2022: A practical approach to parsing</title>
+</head><body>
+
+<h1>Workshop: A practical approach to parsing</h1>
+
+This is a page for a workshop at <a href="https://mch2022.org/">MCH2022</A>
+about parsing. It serves as both an interactive page to be used during the
+workshop and as an introduction to parsing. Use the show buttons to reveal
+the explainatory texts.
+
+<h2>What is 3 + 4?</h2>
+
+<style>
+div.hidden { display: none; }
+</style>
 
 <form name="SimpleExpr">
 <textarea name="input" rows="2" cols="80" onkeyup="parseSimpleExpr()">3 + 4 </textarea>
 <textarea name="output" rows="1" cols="20"></textarea>
 </form>
 (type '=' in the input field above to see the answer.)
+<p>
+<div id="button1text" class="hidden">
+Most of use when we read the text '3&nbsp;+&nbsp;4' will immediately think
+about seven as the answer. To arrive at this answer, we have read the symbol
+'3' and realized that it stands for the number three. Likewise we read four
+for the symbol '4'. We also have been taught that the symbol '+' stands for
+adding and in our head we add the number three and four to arrive at seven.
+<p>
+There are some more implicite rules that we employ. We do read the text
+'3&nbsp;3' as twice the nunber three, were we read '33' as thirty three. So a
+space does matter when placed between digits, whereas we read '3+4' the same as
+'3&nbsp;+&nbsp;4'.
+</div> <button id="button1" onclick="showHide(this)">show</button>
 
-<h2>What is 3 + 2 * 2 - 1?</h2>
+<h2>What is 3 + 2 * 2 - 1? 9 or 6?</h2>
 
-Is it 9 or 6?
+<div id="button2text" class="hidden">
+If you enter 3 + 2 * 2 - 1 in a pocket calculator the answer will probably be
+9, because adding three and two gives five. If you next multiply this with two
+you get ten. If you subtract one from ten you arrive at nine.
+<p>
+However, if you take the rule that multiplication (and division) goes before
+adding and substracting, you will start with multiplying two with two and if
+you substract one from three added with four, you arrive at six.
+<p>
+In the first case you assume that all operators have the same priority in the
+second you assume that some operations have a higher priority than others.
+<p>
+You can force one of the two interpretations by using round brackets:
+<ul>
+<li>(3 + 2) * 2 - 1 will return nine
+<li>3 + (2 * 2) - 1 will return six
+</ul>
+Try enter these expression in the input field of the previous paragraph to see
+which operator priorities are implemented in this expression evaluator.
+</div> <button id="button2" onclick="showHide(this)">show</button>
 
+<h2>What is 12 / 2/2?<h2>
 <pre>
 
 
 
 
 </pre>
+<!--
+<div id="button2text" class="hidden">
+</div> <button id="button2" onclick="showHide(this)">show</button>
+-->
 <hr>
 
 <h2>Work in progress</h2>
