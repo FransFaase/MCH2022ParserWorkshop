@@ -1,14 +1,194 @@
 <html><head>
+<script src="IParse.js"></script>
 <title>MCH2022: A practical approach to parsing</title>
 </head><body>
 
 <h1>Workshop: A practical approach to parsing</h1>
 
+<h2>What is 3 + 4?</h2>
+
+<script>
+<!--
+
+var iparse = new IParse
+
+var exprGrammar = iparse.parseGrammar(
+	"root : expression \"=\"."+
+	"expression :	term \"+\" term [add] | term \"-\" term [sub] | term."+
+	"term :	factor | factor \"*\" factor [times]| factor \"/\" factor [div]."+
+	"factor : int | \"(\" expression \")\" | \"+\" factor | \"-\" factor [min].")
+
+function eval_ast(input_tree)
+{
+	var vars = []
+	var gresult = ""
+	var error_msg = undefined
+	var eval = function(ast)
+	{
+		if (ast == undefined) return undefined
+		if (ast.type == "int" || ast.type == "double" || ast.type == "string" || ast.type == "char") return ast.value
+		if (ast.type == "ident")
+		{
+			for (var i = 0; i < vars.length; i++)
+				if (vars[i].name == ast.value)
+					return vars[i].value
+			return undefined
+		}
+		if (ast.children == undefined) return undefined
+		if (ast.type == "list")
+		{
+			var s = 0
+			for (var i = 0; i < ast.children.length; i++)
+				s = eval(ast.children[i])
+			return s
+		}
+		if (ast.type == "tree")
+		{
+			if (ast.name == "add") return ast.children.length == 2 ? eval(ast.children[0]) + eval(ast.children[1]) : undefined
+			if (ast.name == "sub") return ast.children.length == 2 ? eval(ast.children[0]) - eval(ast.children[1]) : undefined
+			if (ast.name == "times") return ast.children.length == 2 ? eval(ast.children[0]) * eval(ast.children[1]) : undefined
+			if (ast.name == "div") return ast.children.length == 2 ? eval(ast.children[0]) / eval(ast.children[1]) : undefined
+			if (ast.name == "mod") return ast.children.length == 2 ? eval(ast.children[0]) % eval(ast.children[1]) : undefined
+			if (ast.name == "sum")
+			{
+				var childs = (ast.children.length == 1 && ast.children[0] != undefined && ast.children[0].type == "list") ? ast.children[0].children : ast.children
+				var s = 0
+				for (var i = 0; i < childs.length; i++)
+					s += eval(childs[i])
+				return s
+			}
+			if (ast.name == "multiply")
+			{
+				var childs = (ast.children.length == 1 && ast.children[0] != undefined && ast.children[0].type == "list") ? ast.children[0].children : ast.children
+				var s = 1
+				for (var i = 0; i < childs.length; i++)
+					s *= eval(childs[i])
+				return s
+			}
+			if (ast.name == "min") return ast.children.length == 1 ? -eval(ast.children[0]) : undefined
+			if (ast.name == "le") return ast.children.length == 2 ? eval(ast.children[0]) < eval(ast.children[1]) : undefined
+			if (ast.name == "lt") return ast.children.length == 2 ? eval(ast.children[0]) <= eval(ast.children[1]) : undefined
+			if (ast.name == "ge") return ast.children.length == 2 ? eval(ast.children[0]) > eval(ast.children[1]) : undefined
+			if (ast.name == "gt") return ast.children.length == 2 ? eval(ast.children[0]) >= eval(ast.children[1]) : undefined
+			if (ast.name == "eq") return ast.children.length == 2 ? eval(ast.children[0]) == eval(ast.children[1]) : undefined
+			if (ast.name == "ne") return ast.children.length == 2 ? eval(ast.children[0]) != eval(ast.children[1]) : undefined
+			if (ast.name == "and") return ast.children.length == 2 ? eval(ast.children[0]) && eval(ast.children[1]) : undefined
+			if (ast.name == "or") return ast.children.length == 2 ? eval(ast.children[0]) || eval(ast.children[1]) : undefined
+			if (ast.name == "not") return ast.children.length == 1 ? !eval(ast.children[0]) : undefined
+			if (ast.name == "ass")
+			{
+				if (ast.children.length != 2) return undefined
+				if (ast.children[0].type != "ident") return undefined
+				var n = ast.children[0].value
+				var v = eval(ast.children[1])
+				for (var i = 0; i < vars.length; i++)
+					if (vars[i].name == n)
+					{
+						vars[i].value = v
+						return v
+					}
+				vars.push({ name:n, value:v })
+				return v
+			}
+			if (ast.name == "assto")
+			{
+				if (ast.children.length != 2) return undefined
+				if (ast.children[1].type != "ident") return undefined
+				var n = ast.children[1].value
+				var v = eval(ast.children[0])
+				for (var i = 0; i < vars.length; i++)
+					if (vars[i].name == n)
+					{
+						vars[i].value = v
+						return v
+					}
+				vars.push({ name:n, value:v })
+				return v
+			}
+			if (ast.name == "print")
+			{
+				if (ast.children.length != 1) return undefined
+				var v = eval(ast.children[0])
+				gresult += v + "\n"
+				return v
+			}
+			if (ast.name == "prompt")
+			{
+				if (ast.children.length != 1) return undefined
+				var msg = eval(ast.children[0])
+				var v = prompt(msg)
+				if (/^[-+]?(\d+|Infinity)$/.test(v)) v = Number(v)
+				return v
+			}
+			if (ast.name == "ifthenelse")
+			{
+				if (ast.children.length != 3) return undefined
+				return eval(ast.children[0]) == true ? eval(ast.children[1]) : eval(ast.children[2])
+			}
+			if (ast.name == "whenotherwise")
+			{
+				if (ast.children.length != 3) return undefined
+				return eval(ast.children[1]) == true ? eval(ast.children[0]) : eval(ast.children[2])
+			}
+			if (ast.name == "while")
+			{
+				if (ast.children.length != 2) return undefined
+				var s = undefined
+				while (eval(ast.children[0]) == true)
+					s = eval(ast.children[1])
+				return s
+			}
+			if (ast.name == "defaultsto")
+			{
+				if (ast.children.length != 2) return undefined
+				var v = eval(ast.children[0])
+				return v != undefined ? v : eval(ast.children[1])
+			}
+		}
+		return undefined
+	}
+	if (input_tree == false)
+		return "?"
+	var result = eval(input_tree)
+	if (error_msg != undefined)
+		return "?"
+	else
+		return result
+}
+
+function parseSimpleExpr()
+{
+	var ast = iparse.parse(document.SimpleExpr.input.value, exprGrammar)
+	document.SimpleExpr.output.value = eval_ast(ast)
+}
+
+
+//--></script>
+
+<form name="SimpleExpr">
+<textarea name="input" rows="2" cols="80" onkeyup="parseSimpleExpr()">3 + 4 </textarea>
+<textarea name="output" rows="1" cols="20"></textarea>
+</form>
+(type '=' in the input field above to see the answer.)
+
+<h2>What is 3 + 2 * 2 - 1?</h2>
+
+Is it 9 or 6?
+
+<pre>
+
+
+
+
+</pre>
+<hr>
+
+<h2>Work in progress</h2>
+
 This is still work in progress. It will be an improved version of the workshop
 <a href="https://fransfaase.github.io/ParserWorkshop/Online_inter_parser.html"
 >A modern approach to parsing</A> that I gave on March 20, 2021.
-
-<hr>
+<P>
 Author: <a href="https://www.iwriteiam.nl/Frans.html">Frans</a><br>
 <a href="https://www.iwriteiam.nl/">Personal website</a><br>
 <a href="https://www.iwriteiam.nl/index.html#email">email address</a>
