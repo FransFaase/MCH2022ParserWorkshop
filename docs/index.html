@@ -13,10 +13,10 @@
 var iparse = new IParse
 
 var exprGrammar = iparse.parseGrammar(
-	"root : expression \"=\"."+
-	"expression :	term \"+\" term [add] | term \"-\" term [sub] | term."+
-	"term :	factor | factor \"*\" factor [times]| factor \"/\" factor [div]."+
-	"factor : int | \"(\" expression \")\" | \"+\" factor | \"-\" factor [min].")
+	"root : expr \"=\"."+
+	"expr : expr \"+\" term [add] | expr \"-\" term [sub] | term."+
+	"term :	term \"*\" factor [times]| term \"/\" factor [div] | factor."+
+	"factor : int | \"(\" expr \")\" | \"-\" factor [min].")
 
 function eval_ast(input_tree)
 {
@@ -148,10 +148,10 @@ function eval_ast(input_tree)
 		return undefined
 	}
 	if (input_tree == false)
-		return "?"
+		return "  ?"
 	var result = eval(input_tree)
 	if (error_msg != undefined)
-		return "?"
+		return "  ?"
 	else
 		return result
 }
