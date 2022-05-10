@@ -229,7 +229,20 @@ Try enter these expression in the input field of the previous paragraph to see
 which operator priorities are implemented in this expression evaluator.
 </div> <button id="button2" onclick="showHide(this)">show</button>
 
-<h2>What is 12 / 2/2?<h2>
+<h2>What is 12 / 2/2? 12 or 3?</h2>
+
+<div id="button3text" class="hidden">
+2/2 is one and twelve divided by one is twelve. But 12 divided by 2 is six and
+six divided again by 2 is three. Assuming that spaces have no semantic meaning,
+than the question here is, whether the divide operator is left or right
+associative. Depending on this, the brackets are thought to be placed as:
+<ul>
+<li>Left associative: (12 / 2) / 2
+<li>right associative: 12 (2 / 2)
+</ul>
+
+</div> <button id="button3" onclick="showHide(this)">show</button>
+
 <pre>
 
 
