@@ -1,5 +1,8 @@
 <html><head>
 <script src="IParse.js"></script>
+<script src="d3.v3.min.js"></script>
+<script src="d3Tree.js"></script>
+<link rel="stylesheet" type="text/css" href="tree-viewer.css">
 <script>
 <!--
 
@@ -170,6 +173,22 @@ function showHide(button)
 	}
 }
 
+var expr2Grammar = iparse.parseGrammar(
+	"root : expr."+
+	"expr : expr \"+\" term [add] | expr \"-\" term [sub] | term."+
+	"term :	term \"*\" factor [times]| term \"/\" factor [div] | factor."+
+	"factor : int | \"(\" expr \")\" | \"-\" factor [min].")
+
+function parseSyntaxTree()
+{
+	var ast = iparse.parse(document.SyntaxTree.input.value, expr2Grammar)
+	if (ast == false)
+		d3Tree({ name:"???" })
+	else
+		d3Tree( ast.transf())
+}
+
+
 //--></script>
 <title>MCH2022: A practical approach to parsing</title>
 </head><body>
@@ -240,8 +259,39 @@ associative. Depending on this, the brackets are thought to be placed as:
 <li>Left associative: (12 / 2) / 2
 <li>right associative: 12 (2 / 2)
 </ul>
+Note that for 3&nbsp;*&nbsp;2&nbsp;*&nbsp;5 it does not matter whether we place the brackets
+like (3&nbsp;*&nbsp;2)&nbsp;*&nbsp;5 or 3&nbsp;*&nbsp;(2&nbsp;*&nbsp;5).
 
 </div> <button id="button3" onclick="showHide(this)">show</button>
+
+<h2>Abstract syntax tree</h2>
+
+<div id="button4text" class="hidden">
+An alternative way to represent expressions without using brackets is to use
+a tree. (By custom these trees are drawn up-side down.) Below such a tree is
+shown for the given expression. Experiment with changing the expression. If
+the expression is not correct, three question marks are displayed.
+<p>
+Such a tree is also called an abstract syntax tree, because it abstracts from
+the concrete syntax using characters. From the syntax tree, one cannot see if
+brackets were used in the input or not in case they do not make any difference
+in how the expression should be calculated. To calculate the value of the
+syntax tree below, find a node that only has numbers below them and replace
+that node by the result of applying the operation to the numbers. Repeat this
+until there is no such node any more.
+</div> <button id="button4" onclick="showHide(this)">show</button>
+<p>
+<center>
+<form name="SyntaxTree">
+<textarea name="input" rows="2" cols="80" onkeyup="parseSyntaxTree()">3 + 4</textarea>
+</form>
+
+<div id="tree-container" style="width: 80%; height: 500px"></div>
+</center>
+
+<script><!--
+parseSyntaxTree()
+//--></script>
 
 <pre>
 
