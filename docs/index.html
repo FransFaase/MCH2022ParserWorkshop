@@ -188,6 +188,20 @@ function parseSyntaxTree()
 		d3Tree( ast.transf())
 }
 
+function parseExample(formname)
+{
+	var g = iparse.parseGrammar(document[formname].grammar.value)
+	if (g == false)
+		document[formname].output.value = "Grammar "+iparse.reportExpecting()
+	else
+	{
+		var ast = iparse.parse(document[formname].input.value, g)
+		if (ast == false)
+			document[formname].output.value = "Input "+iparse.reportExpecting()
+		else
+			document[formname].output.value = ast.print()
+	}
+}
 
 //--></script>
 <title>MCH2022: A practical approach to parsing</title>
@@ -293,7 +307,81 @@ until there is no such node any more.
 parseSyntaxTree()
 //--></script>
 
+<h2>Railroad diagrams or production rules</h2>
+
+<div id="button5text" class="hidden">
+There are various ways to specify a grammar for how an input text needs to be
+transformed into an abstract syntax tree. Some of these are:
+<ul>
+<li>Textual description
+<li><a href="https://en.wikipedia.org/wiki/Syntax_diagram"
+	>Railroad diagrams</a>
+<li><a href="https://en.wikipedia.org/wiki/Production_(computer_science)"
+	>Production rules</a>
+</ul>
+The idea of railroad diagrams is that you represent the grammar by a number of
+boxes and lines with switches that connect the boxes. The boxes can contain
+characters or the names of other railroad diagrams. An example of railroad
+diagrams for arithmetic expressions can be found in
+<a href="https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html"
+>Parsing a Simplified Grammar</A>. (This page also contains some production
+rules, but these production rules are incorrect.)
+Railroad diagrams are nice to explain a grammar, but for speficying them, you
+also need some tool that can interpret them.
+<p>
+In the rest of this workshop we are going to work with grammars that are
+specified with production rules.
+</div> <button id="button5" onclick="showHide(this)">show</button>
+
+<h2>Terminals</h2>
+
+<div id="button6text" class="hidden">
+Terminals in a formal langual are the like lexical elements of a natural
+language. In a natural language we have word, numbers, and punctuation marks.
+In programming language, we have integers, floating point numbers, identifiers,
+strings (a sequence of characters between quotation marks), keywords,
+operators and such.
+<p>
+Below a production rule is given for parsing three terminals. On the left-hand
+side of the colon, the word '<tt>root</tt>' is given. This is the starting
+point of the grammar. On the right-hand side of the colon, the names of three
+terminals is given. The word '<tt>int</tt>' is denoted to represent an integer
+number, the word '<tt>ident</tt>' is denoted to represent an identifier, and
+the word '<tt>string</tt>' is denoted to represent an string between double
+quotes. A period is used to denote the end of the production rule.
+
+</div> <button id="button6" onclick="showHide(this)">show</button>
+<p>
+<form name="Terminals">
+Grammar:<br>
+<textarea name="grammar" rows="2" cols="80" onkeyup="parseExample('Terminals')">root : int ident string .</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Terminals')">3 me "abc"</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="4" cols="80"></textarea>
+</form>
+
+<script><!--
+parseExample("Terminals")
+//--></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <pre>
+
+
 
 
 
