@@ -183,25 +183,36 @@ function parseSyntaxTree()
 {
 	var ast = iparse.parse(document.SyntaxTree.input.value, expr2Grammar)
 	if (ast == false)
-		d3Tree({ name:"???" })
+		d3Tree({ name:"???" }, "tree-container")
 	else
-		d3Tree( ast.transf())
+		d3Tree( ast.transf(), "tree-container")
 }
 
-function parseExample(formname)
+function parseExample(formname, evaluate)
 {
 	var g = iparse.parseGrammar(document[formname].grammar.value)
 	if (g == false)
+	{
 		document[formname].output.value = "Grammar "+iparse.reportExpecting()
+		d3Tree({ name:"???" }, formname+"tree")
+	}
 	else
 	{
 		var ast = iparse.parse(document[formname].input.value, g)
 		if (ast == false)
+		{
 			document[formname].output.value = "Input "+iparse.reportExpecting()
+			d3Tree({ name:"???" }, formname+"tree")
+		}
 		else
-			document[formname].output.value = ast.print()
+		{
+			document[formname].output.value = ast.print() + (evaluate != undefined ? " = " + eval_ast(ast) : "")
+			d3Tree( ast.transf(), formname+"tree")
+		}
 	}
 }
+
+function evalExample(formname) { parseExample(formname, true) }
 
 //--></script>
 <title>MCH2022: A practical approach to parsing</title>
@@ -237,6 +248,7 @@ There are some more implicite rules that we employ. We do read the text
 '3&nbsp;3' as twice the nunber three, were we read '33' as thirty three. So a
 space does matter when placed between digits, whereas we read '3+4' the same as
 '3&nbsp;+&nbsp;4'.
+<p>
 </div> <button id="button1" onclick="showHide(this)">show</button>
 
 <h2>What is 3 + 2 * 2 - 1? 9 or 6?</h2>
@@ -260,6 +272,7 @@ You can force one of the two interpretations by using round brackets:
 </ul>
 Try enter these expression in the input field of the previous paragraph to see
 which operator priorities are implemented in this expression evaluator.
+<p>
 </div> <button id="button2" onclick="showHide(this)">show</button>
 
 <h2>What is 12 / 2/2? 12 or 3?</h2>
@@ -275,7 +288,7 @@ associative. Depending on this, the brackets are thought to be placed as:
 </ul>
 Note that for 3&nbsp;*&nbsp;2&nbsp;*&nbsp;5 it does not matter whether we place the brackets
 like (3&nbsp;*&nbsp;2)&nbsp;*&nbsp;5 or 3&nbsp;*&nbsp;(2&nbsp;*&nbsp;5).
-
+<p>
 </div> <button id="button3" onclick="showHide(this)">show</button>
 
 <h2>Abstract syntax tree</h2>
@@ -293,6 +306,7 @@ in how the expression should be calculated. To calculate the value of the
 syntax tree below, find a node that only has numbers below them and replace
 that node by the result of applying the operation to the numbers. Repeat this
 until there is no such node any more.
+<p>
 </div> <button id="button4" onclick="showHide(this)">show</button>
 <p>
 <center>
@@ -331,6 +345,7 @@ also need some tool that can interpret them.
 <p>
 In the rest of this workshop we are going to work with grammars that are
 specified with production rules.
+<p>
 </div> <button id="button5" onclick="showHide(this)">show</button>
 
 <h2>Terminals</h2>
@@ -349,7 +364,7 @@ terminals is given. The word '<tt>int</tt>' is denoted to represent an integer
 number, the word '<tt>ident</tt>' is denoted to represent an identifier, and
 the word '<tt>string</tt>' is denoted to represent an string between double
 quotes. A period is used to denote the end of the production rule.
-
+<p>
 </div> <button id="button6" onclick="showHide(this)">show</button>
 <p>
 <form name="Terminals">
@@ -360,18 +375,170 @@ Input:<br>
 <textarea name="input" rows="2" cols="80" onkeyup="parseExample('Terminals')">3 me "abc"</textarea>
 <p>
 Output:<br>
-<textarea name="output" rows="4" cols="80"></textarea>
+<textarea name="output" rows="2" cols="80"></textarea>
 </form>
 
 <script><!--
 parseExample("Terminals")
 //--></script>
 
+<h2>Literals and keywords</h2>
 
+<div id="button7text" class="hidden">
+Two other types of terminals in programming languages are literals and keyword.
+In a grammar we can define these by placing some text in between double
+quotes. If the text starts with an alphabetic character, it is taken as a
+keyword. (Sometimes keywords are also called reserved words.) Keywords usually
+overlap with identifiers. It is thus logical to exclude keywords from the
+identifiers. This can be tested in the input by replacing the <tt>a</tt> by
+<tt>if</tt>. For literals the rule is that the characters should appear
+directly after each other, without space between them. This can be tested in
+the input by inserting a space between the two colons.
+<p>
+</div> <button id="button7" onclick="showHide(this)">show</button>
+<p>
+<form name="Literals">
+Grammar:<br>
+<textarea name="grammar" rows="2" cols="80" onkeyup="parseExample('Literals')">root : "if" ident "::" .</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Literals')">if a ::</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
 
+<script><!--
+parseExample("Literals")
+//--></script>
 
+<h2>Non-terminals</h2>
 
+<div id="button8text" class="hidden">
+Below a grammar consisting of three rules is shown to parse a very simple
+expression. In this grammar the non-terminal <tt>expr</tt> is a non-terminal.
+(Actually, the text <tt>root</tt> is also a non-terminal. A special one that
+denotes the start of the grammar.) The non-terminal <tt>expr</tt> is used in
+the first rule to represent the experssion that is followed by an equal sign.
+The last two rules specify what the expression may consist of Either
+integer followed by a plus sign and another integer or a single integer.
+<p>
+In our grammar definition, the order of the rules does matter. The first
+grammar rule of a non-terminal that parses a text takes precedence over
+following rules. If one swaps the last two rules in the example below, the
+input will no longer be parsed.
+<p>
+</div> <button id="button8" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar1">
+Grammar:<br>
+<textarea name="grammar" rows="4" cols="80" onkeyup="parseExample('Grammar1')">root : expr "=" .
+expr : int "+" int .
+expr : int .</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Grammar1')">3 + 4 =</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
 
+<script><!--
+parseExample("Grammar1")
+//--></script>
+
+<h2>Add and substract</h2>
+
+<div id="button9text" class="hidden">
+In the grammar below a grammar rule with a minus sign is included for
+substraction. To make a difference between these two rules in the abstract
+syntax tree, we have added the words <tt>add</tt> and <tt>sub</tt> between
+square brackets at the end of the rule. Replace the plus sign in the input
+with a minus sign to see the effect in the output.
+<p>
+</div> <button id="button9" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar2">
+Grammar:<br>
+<textarea name="grammar" rows="5" cols="80" onkeyup="evalExample('Grammar2')">root : expr "=" .
+expr : int "+" int [add] .
+expr : int "-" int [sub] .
+expr : int .</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="evalExample('Grammar2')">3 + 4 =</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
+
+<script><!--
+evalExample("Grammar2")
+//--></script>
+
+<h2>Left and right recursion</h2>
+
+<div id="button10text" class="hidden">
+The above grammar does not allow us to parse additions of more than two
+numbers. In the grammar below, the grammar rules have been slightly modified.
+Note that in the second and third rule the first terminal <tt>int</tt> has been
+replaced by the non-terminal <tt>expr</tt>. Rules where the non-terminal
+appears as the first element are called <a href="https://en.wikipedia.org/wiki/Left_recursion"
+>left recursuve</a>. If we would have replaced the second terminal <tt>int</tt>
+in both grammar rules with <tt>expr</tt> instead, we would have gotten right
+recusion. Try this yourself by modifying the grammar.
+<p>
+</div> <button id="button10" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar3">
+Grammar:<br>
+<textarea name="grammar" rows="5" cols="80" onkeyup="evalExample('Grammar3')">root : expr "=" .
+expr : expr "+" int [add] .
+expr : expr "-" int [sub] .
+expr : int .</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="evalExample('Grammar3')">3 + 4 - 5 =</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
+<p>
+<div id="Grammar3tree" style="width: 600px; height: 400px"></div>
+
+<script><!--
+evalExample("Grammar3")
+//--></script>
+
+<h2>Bar symbol</h2>
+
+<div id="button11text" class="hidden">
+As a shorthand it is possible to use the bar symbol ('|') to combine the
+various rules for one non-terminal into a single rule. This is shown in the
+grammar below, which is the grammar that was used at the start for arithmetic
+expressions.
+<p>
+</div> <button id="button11" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar4">
+Grammar:<br>
+<textarea name="grammar" rows="5" cols="80" onkeyup="evalExample('Grammar4')">root : expr "=" .
+expr : expr "+" term [add] | expr "-" term [sub] | term .
+term : term "*" factor [times] | term "/" factor [div] | factor .
+factor : int | "(" expr ")" | "-" factor [min] .
+</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="evalExample('Grammar4')">3 + 4 * 5 =</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
+<div id="Grammar4tree" style="width: 600px; height: 400px"></div>
+
+<script><!--
+evalExample("Grammar4")
+//--></script>
 
 
 

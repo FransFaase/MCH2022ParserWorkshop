@@ -2,7 +2,7 @@
 // Inspired by "D3.js Drag and Drop Zoomable Tree" by Rob Schmuecker <robert.schmuecker@gmail.com>
 // https://gist.github.com/robschmuecker/7880033
 
-function d3Tree(treeData) {
+function d3Tree(treeData, treeContainerName) {
     // panning variables
     var panSpeed = 200;
     // Misc. variables
@@ -10,7 +10,9 @@ function d3Tree(treeData) {
     var duration = 450;
     var root;
 	
-	var treeContainer = document.getElementById('tree-container')
+	var treeContainer = document.getElementById(treeContainerName)
+	if (treeContainer == null) return
+	
     // size of the diagram
     var viewerWidth = treeContainer.offsetWidth - 1;
     var viewerHeight = treeContainer.offsetHeight;
@@ -81,10 +83,10 @@ function d3Tree(treeData) {
     var zoomListener = d3.behavior.zoom().scaleExtent([0.1, 3]).on("zoom", zoom);
 	
 	// remove the previous svg if there
-	d3.select("svg").remove();
+	d3.select("#"+treeContainerName).select("svg").remove();
 	
     // define the baseSvg, attaching a class for styling and the zoomListener
-    var baseSvg = d3.select("#tree-container").append("svg")
+    var baseSvg = d3.select("#"+treeContainerName).append("svg")
         .attr("width", viewerWidth)
         .attr("height", viewerHeight)
         .attr("class", "overlay")
