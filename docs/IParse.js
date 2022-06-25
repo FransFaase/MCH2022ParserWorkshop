@@ -129,7 +129,7 @@ var IParse = (function() {
 		
 		if (rule.type == "ident")
 		{
-			if (rule.value == "int" || rule.value == "string" || rule.value == "char" || rule.value == "ident" || rule.value == "eof")
+			if (rule.value == "int" || rule.value == "string" || rule.value == "char" || rule.value == "ident" || rule.value == "roman_numeral" || rule.value == "eof")
 			{
 				result.kind = RK_TERM
 				result.value = rule.value
@@ -514,6 +514,42 @@ var IParse = (function() {
 		return undefined
 	}
 	
+	function accept_roman()
+	{
+		var sp = save_pos()
+		var id = accept_id()
+		if (id == undefined)
+		{
+			restore_pos(sp)
+			expecting("<roman_numeral>")
+			return undefined
+		}
+		var prev = 0
+		var result = 0
+		for (var i = 0; i < id.length; i++)
+		{
+			var cur = id[i]
+			if (cur == 'I') cur = 1
+			else if (cur == 'V') cur = 5
+			else if (cur == 'X') cur = 10
+			else if (cur == 'L') cur = 50
+			else if (cur == 'C') cur = 100
+			else if (cur == 'D') cur = 500
+			else if (cur == 'M') cur = 1000
+			else
+			{
+				restore_pos(sp)
+				expecting("<roman_numeral>")
+				return undefined
+			}
+			if (prev < cur)
+				result -= 2 * prev
+			prev = cur
+			result += cur
+		}
+		return result
+	}
+	
 	function accept_lit(s, grammar)
 	{
 		if (ident_start_char(s.charCodeAt(0)))
@@ -570,6 +606,14 @@ var IParse = (function() {
 				return false
 			rtree.result = char_tree(s)
 			return true
+		}
+		if (term == "roman_numeral")
+		{
+			var i = accept_roman()
+			if (i == undefined)
+				return false
+			rtree.result = int_tree(i)
+			return true;
 		}
 		if (term == "eof")
 		{

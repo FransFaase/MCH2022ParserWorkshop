@@ -1,5 +1,6 @@
 <html><head>
 <script src="IParse.js"></script>
+<script src="interpreter.js"></script>
 <script src="d3.v3.min.js"></script>
 <script src="d3Tree.js"></script>
 <link rel="stylesheet" type="text/css" href="tree-viewer.css">
@@ -14,148 +15,11 @@ var exprGrammar = iparse.parseGrammar(
 	"term :	term \"*\" factor [times]| term \"/\" factor [div] | factor."+
 	"factor : int | \"(\" expr \")\" | \"-\" factor [min].")
 
-function eval_ast(input_tree)
-{
-	var vars = []
-	var gresult = ""
-	var error_msg = undefined
-	var eval = function(ast)
-	{
-		if (ast == undefined) return undefined
-		if (ast.type == "int" || ast.type == "double" || ast.type == "string" || ast.type == "char") return ast.value
-		if (ast.type == "ident")
-		{
-			for (var i = 0; i < vars.length; i++)
-				if (vars[i].name == ast.value)
-					return vars[i].value
-			return undefined
-		}
-		if (ast.children == undefined) return undefined
-		if (ast.type == "list")
-		{
-			var s = 0
-			for (var i = 0; i < ast.children.length; i++)
-				s = eval(ast.children[i])
-			return s
-		}
-		if (ast.type == "tree")
-		{
-			if (ast.name == "add") return ast.children.length == 2 ? eval(ast.children[0]) + eval(ast.children[1]) : undefined
-			if (ast.name == "sub") return ast.children.length == 2 ? eval(ast.children[0]) - eval(ast.children[1]) : undefined
-			if (ast.name == "times") return ast.children.length == 2 ? eval(ast.children[0]) * eval(ast.children[1]) : undefined
-			if (ast.name == "div") return ast.children.length == 2 ? eval(ast.children[0]) / eval(ast.children[1]) : undefined
-			if (ast.name == "mod") return ast.children.length == 2 ? eval(ast.children[0]) % eval(ast.children[1]) : undefined
-			if (ast.name == "sum")
-			{
-				var childs = (ast.children.length == 1 && ast.children[0] != undefined && ast.children[0].type == "list") ? ast.children[0].children : ast.children
-				var s = 0
-				for (var i = 0; i < childs.length; i++)
-					s += eval(childs[i])
-				return s
-			}
-			if (ast.name == "multiply")
-			{
-				var childs = (ast.children.length == 1 && ast.children[0] != undefined && ast.children[0].type == "list") ? ast.children[0].children : ast.children
-				var s = 1
-				for (var i = 0; i < childs.length; i++)
-					s *= eval(childs[i])
-				return s
-			}
-			if (ast.name == "min") return ast.children.length == 1 ? -eval(ast.children[0]) : undefined
-			if (ast.name == "le") return ast.children.length == 2 ? eval(ast.children[0]) < eval(ast.children[1]) : undefined
-			if (ast.name == "lt") return ast.children.length == 2 ? eval(ast.children[0]) <= eval(ast.children[1]) : undefined
-			if (ast.name == "ge") return ast.children.length == 2 ? eval(ast.children[0]) > eval(ast.children[1]) : undefined
-			if (ast.name == "gt") return ast.children.length == 2 ? eval(ast.children[0]) >= eval(ast.children[1]) : undefined
-			if (ast.name == "eq") return ast.children.length == 2 ? eval(ast.children[0]) == eval(ast.children[1]) : undefined
-			if (ast.name == "ne") return ast.children.length == 2 ? eval(ast.children[0]) != eval(ast.children[1]) : undefined
-			if (ast.name == "and") return ast.children.length == 2 ? eval(ast.children[0]) && eval(ast.children[1]) : undefined
-			if (ast.name == "or") return ast.children.length == 2 ? eval(ast.children[0]) || eval(ast.children[1]) : undefined
-			if (ast.name == "not") return ast.children.length == 1 ? !eval(ast.children[0]) : undefined
-			if (ast.name == "ass")
-			{
-				if (ast.children.length != 2) return undefined
-				if (ast.children[0].type != "ident") return undefined
-				var n = ast.children[0].value
-				var v = eval(ast.children[1])
-				for (var i = 0; i < vars.length; i++)
-					if (vars[i].name == n)
-					{
-						vars[i].value = v
-						return v
-					}
-				vars.push({ name:n, value:v })
-				return v
-			}
-			if (ast.name == "assto")
-			{
-				if (ast.children.length != 2) return undefined
-				if (ast.children[1].type != "ident") return undefined
-				var n = ast.children[1].value
-				var v = eval(ast.children[0])
-				for (var i = 0; i < vars.length; i++)
-					if (vars[i].name == n)
-					{
-						vars[i].value = v
-						return v
-					}
-				vars.push({ name:n, value:v })
-				return v
-			}
-			if (ast.name == "print")
-			{
-				if (ast.children.length != 1) return undefined
-				var v = eval(ast.children[0])
-				gresult += v + "\n"
-				return v
-			}
-			if (ast.name == "prompt")
-			{
-				if (ast.children.length != 1) return undefined
-				var msg = eval(ast.children[0])
-				var v = prompt(msg)
-				if (/^[-+]?(\d+|Infinity)$/.test(v)) v = Number(v)
-				return v
-			}
-			if (ast.name == "ifthenelse")
-			{
-				if (ast.children.length != 3) return undefined
-				return eval(ast.children[0]) == true ? eval(ast.children[1]) : eval(ast.children[2])
-			}
-			if (ast.name == "whenotherwise")
-			{
-				if (ast.children.length != 3) return undefined
-				return eval(ast.children[1]) == true ? eval(ast.children[0]) : eval(ast.children[2])
-			}
-			if (ast.name == "while")
-			{
-				if (ast.children.length != 2) return undefined
-				var s = undefined
-				while (eval(ast.children[0]) == true)
-					s = eval(ast.children[1])
-				return s
-			}
-			if (ast.name == "defaultsto")
-			{
-				if (ast.children.length != 2) return undefined
-				var v = eval(ast.children[0])
-				return v != undefined ? v : eval(ast.children[1])
-			}
-		}
-		return undefined
-	}
-	if (input_tree == false)
-		return "  ?"
-	var result = eval(input_tree)
-	if (error_msg != undefined)
-		return "  ?"
-	else
-		return result
-}
 
 function parseSimpleExpr()
 {
 	var ast = iparse.parse(document.SimpleExpr.input.value, exprGrammar)
-	document.SimpleExpr.output.value = eval_ast(ast)
+	document.SimpleExpr.output.value = interpret(ast)
 }
 
 function showHide(button)
@@ -206,7 +70,7 @@ function parseExample(formname, evaluate)
 		}
 		else
 		{
-			document[formname].output.value = ast.print() + (evaluate != undefined ? " = " + eval_ast(ast) : "")
+			document[formname].output.value = ast.print() + (evaluate != undefined ? " = " + interpret(ast) : "")
 			d3Tree( ast.transf(), formname+"tree")
 		}
 	}
@@ -361,18 +225,20 @@ Below a production rule is given for parsing three terminals. On the left-hand
 side of the colon, the word '<tt>root</tt>' is given. This is the starting
 point of the grammar. On the right-hand side of the colon, the names of three
 terminals is given. The word '<tt>int</tt>' is denoted to represent an integer
-number, the word '<tt>ident</tt>' is denoted to represent an identifier, and
-the word '<tt>string</tt>' is denoted to represent an string between double
-quotes. A period is used to denote the end of the production rule.
+number, the word '<tt>ident</tt>' is denoted to represent an identifier, the
+word '<tt>string</tt>' is denoted to represent a string between double
+quotes, and the word '<tt>char</tt>' is denoted to represent a single
+character placed between single quotes. A period is used to denote the end of
+the production rule.
 <p>
 </div> <button id="button6" onclick="showHide(this)">show</button>
 <p>
 <form name="Terminals">
 Grammar:<br>
-<textarea name="grammar" rows="2" cols="80" onkeyup="parseExample('Terminals')">root : int ident string .</textarea>
+<textarea name="grammar" rows="2" cols="80" onkeyup="parseExample('Terminals')">root : int ident string char .</textarea>
 <p>
 Input:<br>
-<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Terminals')">3 me "abc"</textarea>
+<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Terminals')">3 me "abc" 'a'</textarea>
 <p>
 Output:<br>
 <textarea name="output" rows="2" cols="80"></textarea>
@@ -540,8 +406,55 @@ Output:<br>
 evalExample("Grammar4")
 //--></script>
 
+<h2>Extensions: SEQ, OPT, CHAIN, and LIST</h2>
 
+<div id="button12text" class="hidden">
+To avoid having introduce many non-terminals for ccmmon languages such as
+sequences and optional elements, a number of extensions are introduced.
+First of all, round brackets can be used to make sub rules. The keyword
+<tt>SEQ</tt> can be used express that the element before it can occur one or
+more times. The keyword <tt>OPT</tt> can be used to indicate that the element
+is optional. The keyword <tt>CHAIN</tt> can be used define a chain of one or
+more elements separated with the literal that follows the keyword. The keyword
+<tt>LIST</tt> is equivalent with a sequence of elements separated with a comma.
+The <tt>OPT</tt> keyword can be combined with the other keywords.
+<p>
+</div> <button id="button12" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar5">
+Grammar:<br>
+<textarea name="grammar" rows="4" cols="80" onkeyup="parseExample('Grammar5')">root : statement SEQ .
+statement : ident (":" ident) OPT
+   ( "=" ident CHAIN "." [ass] | "(" ident LIST OPT ")" [call] ) ";"[stmt] .
+</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="3" cols="80" onkeyup="parseExample('Grammar5')">d = e.f.g;
+a : int (b, c); </textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="3" cols="80"></textarea>
+</form>
 
+<script><!--
+parseExample("Grammar5")
+//--></script>
+
+<h2>Exercise: Tabloit</h2>
+
+Using <a href="IParseStudio.html">IParse Studio</A> write down the grammar
+for <a href="https://tabloid-thesephist.vercel.app/">Tabloid: The Clickbait
+Headline Programming Language</a>. If you want to extend the language, you
+might need to extend the interpreter in the JavaScript file
+<a href="interpreter.js"><tt>interpreter.js</tt></a>. The best way to do this,
+is to clone <a href="https://github.com/FransFaase/MCH2022ParserWorkshop"
+>https://github.com/FransFaase/MCH2022ParserWorkshop</a> and open the
+<tt>doc/IParseStudio.html</TT> file in browser.
+
+<p>
+<hr>
+
+<h2>Interpreting parser</h2>
 
 
 

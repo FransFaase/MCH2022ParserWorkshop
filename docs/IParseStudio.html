@@ -1,0 +1,304 @@
+<html><head>
+<script src="IParse.js"></script>
+<script src="interpreter.js"></script>
+<script src="d3.v3.min.js"></script>
+<script src="d3Tree.js"></script>
+<link rel="stylesheet" type="text/css" href="tree-viewer.css">
+<script><!--
+
+var iparse = new IParse
+
+
+function print_grammar(grammar)
+{
+ var s = ""
+ for (var i = 0; i < grammar.non_terminals.length; i++)
+ {
+	var non_term = grammar.non_terminals[i]
+ 	s += "nt " + non_term.name + "\n"
+ 	for (var j = 0; j < non_term.normal.length; j++)
+ 	{
+ 		s += " normal: " + (non_term.normal[j].rule != undefined ? non_term.normal[j].rule.print() : "") + "[" + non_term.normal[j].tree_name + "]\n"
+ 	}
+ 	for (var j = 0; j < non_term.recursive.length; j++)
+ 	{
+ 		s += " recursive: " + (non_term.recursive[j].rule != undefined ? non_term.recursive[j].rule.print() : "") + "[" + non_term.recursive[j].tree_name + "]\n"
+ 	}
+ }
+ for (var i = 0; i < grammar.keywords.length; i++)
+ 	s += "keyword " + grammar.keywords[i] + "\n"
+ return s
+}
+
+var the_grammar
+
+function parse_grammar_input()
+{
+ the_grammar = undefined
+ document.P.output.value=""
+
+ grammar = document.P.grammar.value;
+ input_pos=0;
+
+ var input_grammar = iparse.parseGrammar(document.P.grammar.value)
+ if (input_grammar == false)
+ {
+ 	document.P.grammar_error.value = iparse.reportExpecting()
+ 	document.P.output.value = "(grammar has errors)"
+ 	d3Tree({ name:"<Grammar has errors>" })
+ 	return
+ }
+
+ //document.P.grammar_error.value = "OK\n"+rtree.result.print()
+ var s = ""
+ var s2 = ""
+ var found_root = false
+ for (var i = 0; i < input_grammar.non_terminals.length; i++)
+ 	if (input_grammar.non_terminals[i].name == "root")
+ 	{
+ 		found_root = true
+ 		break
+ 	}
+ if (!found_root)
+ 	s += "Error: There is no 'root' non-terminal\n"
+ for (var i = 0; i < input_grammar.non_terminals.length; i++)
+ {
+ 	var nt = input_grammar.non_terminals[i]
+ 	//s += nt.name + ": " + nt.normal.length + "\n"
+ 	if (nt.normal.length == 0)
+ 	{
+ 		s += "Error: Non-terminal '"+nt.name+"'"
+ 		if (nt.used_in.length > 0)
+ 		{
+ 			s += " (used in"
+ 			for (var j = 0; j < nt.used_in.length; j++)
+ 			{
+ 				if (j > 0)
+ 					s += ", "
+ 				s += "'"+nt.used_in[j].name+"'"
+ 			}
+ 			s += ")"
+ 		}
+ 		s += " has no normal rules\n"
+ 	}
+ }
+ for (var i = 0; i < input_grammar.non_terminals.length; i++)
+ {
+	var nt = input_grammar.non_terminals[i]
+ 	//s2 += nt.name + ": Used in"
+ 	//for (var j = 0; j < nt.used_in.length; j++)
+ 	//	s2 += " "+nt.used_in[j].name
+ 	//s2 += "\n"
+ 	if (nt.name != "root")
+ 	{
+ 		if (nt.used_in.length == 0)
+ 			s2 += "Warning: Non-terminal '"+nt.name+"' is not used in other rule\n"
+ 		else if (nt.used_in.length == 1 && nt.used_in[0] == nt)
+ 			s2 += "Warning: Non-terminal '"+nt.name+"' is only used in itself\n"
+	}
+ }
+ if (s != "")
+ {
+ 	document.P.grammar_error.value = s + s2
+ 	document.P.output.value = "(grammar has errors)"
+ 	return
+ }
+ document.P.grammar_error.value = s2 + print_grammar(input_grammar)
+ the_grammar = input_grammar
+ parse_input()
+}
+
+var input_tree = undefined
+
+function countAtMost100(t)
+{
+	var nr = 1
+	if (t != undefined && t.children != undefined)
+		for (var i = 0; i < t.children.length; i++)
+		{
+			nr += countAtMost100(t.children[i])
+			if (nr >= 100)
+				break;
+		}
+	return nr;
+}
+
+function parse_input()
+{
+	if (the_grammar == undefined)
+	{
+		document.P.output.value = "(grammar has errors)"
+		d3Tree({ name:"<Grammar has errors>" })
+		showTree()
+		return
+	}
+	input_tree = iparse.parse(document.P.input.value, the_grammar)
+	if (input_tree == false)
+	{
+		document.P.output.value = iparse.reportExpecting()
+		d3Tree({ name:"<input has errors>" })
+		return
+	}
+	document.P.output.value = input_tree != undefined ? input_tree.print() : ""
+	if (input_tree == undefined || countAtMost100(input_tree) <= 100)
+		showTree()
+	else
+		d3Tree({ name:"<click 'show tree'>" })
+}
+
+function eval_ast()
+{
+	result = interpret(input_tree)
+	document.P.output.value = result
+}
+
+function showTree()
+{
+	//document.P.output.value = printx(input_tree.transf())
+	d3Tree(input_tree == undefined ? { name:"<NULL>" } : input_tree == false ? { name:"<input has errors>" } : input_tree.transf(), "tree-container" )
+}
+
+
+//--></script>
+
+<title>IParse Studio</title>
+</head><body>
+
+<h1>IParse Studio</h1>
+<noscript>
+<font color="#FF0000">This page requires <b>JavaScript</b> to be enabled.</font>
+</noscript>
+
+<form name="P">
+Enter the grammar:<br>
+<textarea name="grammar" rows="20" cols="80" onkeyup="parse_grammar_input()"></textarea>
+<textarea name="grammar_error" rows="20" cols="80"></textarea>
+<P>
+The input to be parsed by the grammar:<br>
+<textarea name="input" rows="20" cols="80" onkeyup="parse_input()"></textarea>
+<textarea name="output" rows="20" cols="80"></textarea>
+<P>
+<input type="button" value="execute" onclick="parse_grammar_input()">
+<input type="button" value="show tree" onclick="return showTree();">
+<input type="button" value="evaluate" onclick="eval_ast()">
+<P>
+<div id="tree-container" style="width: 90%; height: 500px"></div>
+<script>
+<!--
+parse_grammar_input()
+//-->
+</script>
+<P>
+<H3><A name="eval">Abstract syntax tree evaluator</A></H3>
+
+When the 'evaluate' button is clicked, the abstract syntax tree is evaluated
+according to the annotations of the nodes and the basic values. Below the
+supported annotations are mentioned and their function is explained:
+<ul>
+<li><tt>add</tt>: Add the values of the two child nodes.
+<li><tt>sub</tt>: Substract the values of the two child nodes.
+<li><tt>times</tt>: Multiplies the values of the two child nodes.
+<li><tt>div</tt>: Divides the values of the two child nodes.
+<li><tt>min</tt>: Minus the value of the one child node.
+<li><tt>mod</tt>: Modulo of the value of the two child nodes.
+<li><tt>sum</tt>: Sums the values of the child nodes.
+<li><tt>multiply</tt>: Multiplies the values of the child nodes.
+<li><tt>lt</tt>: True if the value of the left node is smaller than the value of the right value.
+<li><tt>le</tt>: True if the value of the left node is smaller or equal than the value of the right value.
+<li><tt>gt</tt>: True if the value of the left node is greater than the value of the right value.
+<li><tt>ge</tt>: True if the value of the left node is greater or equal than the value of the right value.
+<li><tt>eq</tt>: True if the value of the left node is equal to the value of the right value.
+<li><tt>ne</tt>: True if the value of the left node is not equal to the value of the right value.
+<li><tt>and</tt>: True if the values of the two child nodes are true.
+<li><tt>or</tt>: True if at least on of the values of the two child nodes is true.
+<li><tt>not</tt>: True if the value of the one child node is not true.
+<li><tt>ass</tt>: Assigns the value of the second node to the variable named by the first node.
+<li><tt>assto</tt>: Assigns the value of the first node to the variable named by the second node.
+<li><tt>ifthenelse</tt>: If the value of the first node is true, the second node is evaluated, otherwise the third
+<li><tt>whenotherwise</tt>: If the value of the second node is true, the first node is evaluated, otherwise the third.
+<li><tt>while</tt>: While the value of the first nodes evaluates to true, the second node is evaluated.
+<li><tt>print</tt>: Prints the value of the only child node on a new line.
+<li><tt>prompt</tt>: Prompts the user for a value displaying the text value of the only child node. 
+<li><tt>LIST</tt>: Evaluates the child nodes and returns the value of the last node.
+<li><tt>defaultsto</tt>: Returns the value of the first node, unless it is undefined, then the value of the second node is returned.
+<li><tt>fndef</tt>: Returns undefined, but defines a function under the name of the first node, with
+	a parameter list represented by the second list and with a body of the third node.
+<li><tt>fncall</tt>: Returns the value of the function with the name of the first node and with
+	the parameters of the list of expressions represented by the second node.
+</ul>
+The result of the evaluation (and the result of print statements) is displayed in the output text area.
+<p>
+An example grammar using the above annotations is:
+<pre>
+root : statement SEQ OPT .
+statement
+    : ident "=" expr ";" [ass]
+    | "if" expr "then" statement SEQ OPT "else" statement SEQ OPT "fi" [ifthenelse]
+    | "while" expr "do" statement SEQ OPT "od" [while]
+    | "print" expr ";" [print]
+    | "function" ident "(" ident LIST OPT ")" "{" statement SEQ OPT "}" [fndef]
+    | expr ";"
+	.
+	
+primary_expr
+        : ident "(" expr LIST OPT ")" [fncall]
+        | ident
+        | int
+        | char
+        | string
+        | "(" expr ")"
+        .
+
+unary_expr
+        : "!" primary_expr [not]
+        | "-" primary_expr [min]
+        | primary_expr
+        .
+
+l_expr1 : l_expr1 "*" unary_expr  [times]
+        | l_expr1 "/" unary_expr  [div]
+        | l_expr1 "%" unary_expr  [mod]
+        | unary_expr
+        .
+l_expr2 : l_expr2 "+" l_expr1  [add]
+        | l_expr2 "-" l_expr1  [sub]
+        | l_expr1 
+        .
+l_expr3 : l_expr3 "&lt;=" l_expr2  [le]
+        | l_expr3 "&gt;=" l_expr2  [ge]
+        | l_expr3 "&lt;"  l_expr2  [lt]
+        | l_expr3 "&gt;"  l_expr2  [gt]
+        | l_expr3 "==" l_expr2  [eq]
+        | l_expr3 "!=" l_expr2  [ne]
+        | l_expr2
+        .
+l_expr4 : l_expr4 "&amp;&amp;" l_expr3 [land]  | l_expr3 .
+l_expr5 : l_expr5 "||" l_expr4 [lor] | l_expr4 .
+
+expr
+        : l_expr5 "?" l_expr5 ":" expr  [ifthenelse]
+        | l_expr5
+        .	
+</pre>
+An example program in this language, for calculating the <A HREF="https://en.wikipedia.org/wiki/Greatest_common_divisor"
+>greatest common divisor</A> of 345 and 555, is:
+<pre>
+function gcd(x, y)
+{
+   while y != 0
+   do
+      c = x % y;
+      x = y;
+      y = c;
+   od
+   x
+}
+a = 345;
+b = 555;
+print gcd(a, b);
+</pre>
+<hr>
+Author: <a href="https://www.iwriteiam.nl/Frans.html">Frans</a><br>
+<a href="https://www.iwriteiam.nl/">Personal website</a><br>
+<a href="https://www.iwriteiam.nl/index.html#email">email address</a>
+</body></html>
