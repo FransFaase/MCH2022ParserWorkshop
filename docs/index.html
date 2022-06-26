@@ -456,7 +456,81 @@ is to clone <a href="https://github.com/FransFaase/MCH2022ParserWorkshop"
 
 <h2>Interpreting parser</h2>
 
+<ul>
+<li>'Natural' programming languages
+<li>Premature optimization is ...
+<li>Just interpret the grammar
+<li>Memory is not an issue
+<li>Hard-coded scanner
+<li>Scanner called by parser
+</ul>
 
+<div id="button13text" class="hidden">
+<b>'Natural' programming languages</b>. Just like natureal languages have things
+in common and follow certain <a href="https://en.wikipedia.org/wiki/Linguistic_universal"
+>universal patterns</a>, the same is true for programming languages. So, lets
+focus on those common patterns. For example, if a programming language has
+reserved words, these usually are reserved every where and not restricted to
+some contexts.
+<p>
+<b>Premature optimization is ...</b> <a href="https://en.wikipedia.org/wiki/Donald_Knuth"
+>Donald Knuth<a> wrote in the paper <a href="http://web.archive.org/web/20130731202547/http://pplab.snu.ac.kr/courses/adv_pl05/papers/p261-knuth.pdf"
+>Structured Programming with go to Statements</a>: "We should forget about
+small efficiencies, say about 97% of the time: premature optimization is the
+root of all evil."
+<p>
+<b>Just interpret the grammar</b>. Lets not process the grammar, but see if we
+can write an interpreter that tries to parse the input following the grammar
+rules. That means a back-tracking recursive descent parser. Yes, bottom-up
+parser, such as the <a href="https://en.wikipedia.org/wiki/LR_parser">LR
+parsers</a> invented by Donald Knuth can input in linear time, but they
+require a costly compilation step that often generates large tables. It is a
+common experience that writing a grammar for <a href="https://en.wikipedia.org/wiki/Yacc"
+>yacc</a> (or bison) is a lot of work especially when having to deal with
+shift-reduce conflicts.
+<p>
+<b>Memory is not an issue</b>. Nowadays it is no problem to load a scource
+file in memory. Lets just use caching intermediate results: cache at every
+location in the file which non-terminals are parsed or not.
+<p>
+<b>Hard-coded scanner</b>. Lets just start with a basic set of common terminals
+used in programming languages and use a hard-coded scanner.
+<p>
+<b>Scanner called by parser</b>. It makes more sense to let the grammar
+dictates which terminals are to be accepted at some location, than to use a
+first pass which breaks down the input into terminals. This is often called
+tokenizing. Experience has proven that this is often not possible without
+introducing states into this first pass, states that are a reflexion of the
+grammar. If we would have a terminal for <a href="https://en.wikipedia.org/wiki/Roman_numerals"
+>Roman numerals</a> it is possible to write a grammar for which it is very
+hard to write a tokenizer that knows when an identifier should be read as a
+Roman numeral or simply as an identifier. Below an example is given, where
+<tt>roman_numeral</tt> is a terminal accepting a Roman numeral.
+
+<p>
+</div> <button id="button13" onclick="showHide(this)">show</button>
+<p>
+<form name="Grammar6">
+Grammar:<br>
+<textarea name="grammar" rows="3" cols="80" onkeyup="parseExample('Grammar6')">root : ident "=" expr .
+expr : int | roman_numeral .
+</textarea>
+<p>
+Input:<br>
+<textarea name="input" rows="2" cols="80" onkeyup="parseExample('Grammar6')">MMXXII = MMXXII</textarea>
+<p>
+Output:<br>
+<textarea name="output" rows="2" cols="80"></textarea>
+</form>
+
+<script><!--
+parseExample("Grammar6")
+//--></script>
+
+<h2>Demonstration: C-grammar</h2>
+
+Load <a href="C_grammar.txt">this C-grammar</a> into IParse Studio and let it
+parse <a href="scan_pc.txt">this post-processed C-program</a>.
 
 
 <pre>
