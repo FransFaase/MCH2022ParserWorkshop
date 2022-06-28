@@ -204,7 +204,7 @@ diagrams for arithmetic expressions can be found in
 <a href="https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html"
 >Parsing a Simplified Grammar</A>. (This page also contains some production
 rules, but these production rules are incorrect.)
-Railroad diagrams are nice to explain a grammar, but for speficying them, you
+Railroad diagrams are nice to explain a grammar, but for specifying them, you
 also need some tool that can interpret them.
 <p>
 In the rest of this workshop we are going to work with grammars that are
@@ -216,15 +216,15 @@ specified with production rules.
 
 <div id="button6text" class="hidden">
 Terminals in a formal langual are the like lexical elements of a natural
-language. In a natural language we have word, numbers, and punctuation marks.
-In programming language, we have integers, floating point numbers, identifiers,
-strings (a sequence of characters between quotation marks), keywords,
-operators and such.
+language. In a natural language we have word, names, numbers, and punctuation
+marks. In programming language, we have integers, floating point numbers,
+identifiers, strings (a sequence of characters between quotation marks),
+keywords, operators and such.
 <p>
-Below a production rule is given for parsing three terminals. On the left-hand
+Below a production rule is given for parsing four terminals. On the left-hand
 side of the colon, the word '<tt>root</tt>' is given. This is the starting
-point of the grammar. On the right-hand side of the colon, the names of three
-terminals is given. The word '<tt>int</tt>' is denoted to represent an integer
+point of the grammar. On the right-hand side of the colon, the names of four
+terminals are given. The word '<tt>int</tt>' is denoted to represent an integer
 number, the word '<tt>ident</tt>' is denoted to represent an identifier, the
 word '<tt>string</tt>' is denoted to represent a string between double
 quotes, and the word '<tt>char</tt>' is denoted to represent a single
@@ -286,7 +286,7 @@ expression. In this grammar the non-terminal <tt>expr</tt> is a non-terminal.
 (Actually, the text <tt>root</tt> is also a non-terminal. A special one that
 denotes the start of the grammar.) The non-terminal <tt>expr</tt> is used in
 the first rule to represent the experssion that is followed by an equal sign.
-The last two rules specify what the expression may consist of Either
+The last two rules specify what the expression may consist of either
 integer followed by a plus sign and another integer or a single integer.
 <p>
 In our grammar definition, the order of the rules does matter. The first
@@ -409,14 +409,14 @@ evalExample("Grammar4")
 <h2>Extensions: SEQ, OPT, CHAIN, and LIST</h2>
 
 <div id="button12text" class="hidden">
-To avoid having introduce many non-terminals for ccmmon languages such as
+To avoid having to introduce many non-terminals for common languages such as
 sequences and optional elements, a number of extensions are introduced.
 First of all, round brackets can be used to make sub rules. The keyword
 <tt>SEQ</tt> can be used express that the element before it can occur one or
 more times. The keyword <tt>OPT</tt> can be used to indicate that the element
 is optional. The keyword <tt>CHAIN</tt> can be used define a chain of one or
 more elements separated with the literal that follows the keyword. The keyword
-<tt>LIST</tt> is equivalent with a sequence of elements separated with a comma.
+<tt>LIST</tt> is equivalent with a sequence of elements chained with commas.
 The <tt>OPT</tt> keyword can be combined with the other keywords.
 <p>
 </div> <button id="button12" onclick="showHide(this)">show</button>
@@ -461,6 +461,7 @@ is to clone <a href="https://github.com/FransFaase/MCH2022ParserWorkshop"
 <li>Premature optimization is ...
 <li>Just interpret the grammar
 <li>Memory is not an issue
+<li>Compiled not always faster
 <li>Hard-coded scanner
 <li>Scanner called by parser
 </ul>
@@ -470,7 +471,7 @@ is to clone <a href="https://github.com/FransFaase/MCH2022ParserWorkshop"
 in common and follow certain <a href="https://en.wikipedia.org/wiki/Linguistic_universal"
 >universal patterns</a>, the same is true for programming languages. So, lets
 focus on those common patterns. For example, if a programming language has
-reserved words, these usually are reserved every where and not restricted to
+reserved words, these usually are reserved everywhere and not restricted to
 some contexts.
 <p>
 <b>Premature optimization is ...</b> <a href="https://en.wikipedia.org/wiki/Donald_Knuth"
@@ -483,24 +484,29 @@ root of all evil."
 can write an interpreter that tries to parse the input following the grammar
 rules. That means a back-tracking recursive descent parser. Yes, bottom-up
 parser, such as the <a href="https://en.wikipedia.org/wiki/LR_parser">LR
-parsers</a> invented by Donald Knuth can input in linear time, but they
+parsers</a> invented by Donald Knuth can parse input in linear time, but they
 require a costly compilation step that often generates large tables. It is a
 common experience that writing a grammar for <a href="https://en.wikipedia.org/wiki/Yacc"
 >yacc</a> (or bison) is a lot of work especially when having to deal with
 shift-reduce conflicts.
 <p>
-<b>Memory is not an issue</b>. Nowadays it is no problem to load a scource
-file in memory. Lets just use caching intermediate results: cache at every
-location in the file which non-terminals are parsed or not.
+<b>Memory is not an issue</b>. Nowadays it is no problem to load a source
+file in memory. Lets just use caching of intermediate results: remember at 
+very location in the file which non-terminals are parsed or not.
+<p>
+<b>Compiled not always faster</b>. I made an attempt to modify the interpreter
+into a compiler that would generate C code (by simply applying partial
+evaluation). First of all, compiling this code took a long time, and it also
+executed slower. Why? I guess it caused more processor cache misses.
 <p>
 <b>Hard-coded scanner</b>. Lets just start with a basic set of common terminals
 used in programming languages and use a hard-coded scanner.
 <p>
 <b>Scanner called by parser</b>. It makes more sense to let the grammar
 dictates which terminals are to be accepted at some location, than to use a
-first pass which breaks down the input into terminals. This is often called
+first pass which breaks down the input into terminals. This is usually called
 tokenizing. Experience has proven that this is often not possible without
-introducing states into this first pass, states that are a reflexion of the
+introducing states into this first pass, states that are a reflection of the
 grammar. If we would have a terminal for <a href="https://en.wikipedia.org/wiki/Roman_numerals"
 >Roman numerals</a> it is possible to write a grammar for which it is very
 hard to write a tokenizer that knows when an identifier should be read as a
@@ -532,6 +538,96 @@ parseExample("Grammar6")
 Load <a href="C_grammar.txt">this C-grammar</a> into IParse Studio and let it
 parse <a href="scan_pc.txt">this post-processed C-program</a>.
 
+<h2>Version history</h2>
+
+<ul>
+<li>2001: <a href="https://www.iwriteiam.nl/IParse_c.txt"
+    >Single file C program</a>
+<li>2008: Java implementation (<a href="https://www.iwriteiam.nl/IParseJava.zip">ZIP file</a>)
+<li>2010: C++ implementation (<a href="https://github.com/FransFaase/IParse">GitHub</a>)
+<li>2019: RawParser (<a href="https://github.com/FransFaase/RawParser">GitHub</a>)
+<li>2020: Literate programming with MarkDown
+<li>2021: JavaScript implementation
+</ul>
+
+<div id="button14text" class="hidden">
+<b>Single file C program</b>. This was the version it all started with. The
+realization that with some caching, you can implement a reasonable fast
+parser, without having to do much complicated things. This version does
+include an attempt to also deal with context scoping rules and identifier
+matching. However, it was bit too simplistic.
+<p>
+<b>Java implementation</b>. A quick reimplementation in Java, probably not
+how you should do it in Java. Was not really further developed.
+<p>
+<b>C++ implementation</b>. This implementation in C++ grew through the years.
+Contains various implementations of the parser, several kind of scanners,
+support for code pages and unicode support, some more grammar extensions,
+introduction of 'white-space terminals', and the implementation of an unparser.
+Used in production as the parser for
+<a href="https://support.bizzdesign.com/display/knowledge/Using+scripts+in+Enterprise+Studio"
+>BiZZdesign scripting language</a>. It was also used for implementing parsing
+and unparsing windows resource (<tt>.rc</tt>) files to aid language
+translations.
+<p>
+<b>RawParser</b>. Consists of a <a href="https://github.com/FransFaase/RawParser/blob/master/src/RawParser.c"
+>single C-file</A>, which, by example, shows how a grammar driven, scannerless
+parser can be implemented. It was also an intended to be educational by
+extensive comments and incremental exposition with examples with unit tests.
+Because I found the requirements that C put on the order of statements a bit
+restrictive, which lead me to the following.
+<p>
+<b>Literate programming with MarkDown</b>. I came up with the idea for a form
+of literate programming using MarkDown files. Traditional literate programming
+works by introducing identifiers for fragments of code and uses subsitution to
+put all the fragments in the right order. Instead of this <a href="https://github.com/FransFaase/IParse#markdownc"
+>the program</a> parsers the fragments and automatically puts them in the right
+order. It also includes some syntax to extend earlier defined structures and
+functions. I started using it for <a href="https://github.com/FransFaase/RawParser#documentation"
+>the documentation</a> of RawParser
+<p>
+<b>JavaScript implentation</b>. Last year, for a similar workshop as this, I
+made a very basic JavaScript implementation
+<p>
+</div> <button id="button14" onclick="showHide(this)">show</button>
+
+<h2>Target application</h2>
+
+<ul>
+<li>Prototyping
+<li>Embedded scripting language with interpreter
+<li>Generic syntax tree is a disadvantage
+<li>Compilers often use hand-coded parsers
+<li>Intermediate solution: LALR parser generator
+</ul>
+
+<div id="button15text" class="hidden">
+<p>
+IParse Studio is a good tool for <b>prototyping</b> a grammar, as it allows
+you quickly to test certain grammar ideas. IParse tells you what it is
+expecting at the first location where an error occurs. It has no error
+recovery.
+<p>
+IParse is also suitable for implementing an <b>embedded scripting language with
+an interpreter</b> where only short scripts are processed and error recovery
+is not important.
+<p>
+Using a <b>generic syntax tree is a disadvantage</b> because you need to write
+code to process it. It is also not easy to attach specific data (think symbol
+tables) to certain nodes to a generic tree. For more advance analyses you
+probably would need to transform it into a more specific data structure.
+<p>
+Production grade <b>compilers often use hand-coded parsers</b> with smart
+error recovery.
+<p>
+The <b>intermediate solution</b> is to use an <b>LALR parser generator</b>
+such as Yacc/Bison in compination with a scanner generator such as Lex/Flex.
+It is nice to already have a tested grammar before starting to use a parser
+generator. Yacc and Bison do not support some of the extensions that IParse
+supports, which will require you to rewrite the grammar rules into multiple
+rules.
+<p>
+</div> <button id="button15" onclick="showHide(this)">show</button>
 
 <pre>
 
