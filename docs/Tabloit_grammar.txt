@@ -1,0 +1,30 @@
+root : statement SEQ OPT "PLEASE" "LIKE" "AND" "SUBSCRIBE" .
+
+statement
+   : "DISCOVER" "HOW" "TO" ident "WITH" ident LIST OPT statement [fndef]
+   | "RUMOR" "HAS" "IT" statement SEQ OPT "END" "OF" "STORY"
+   | "WHAT" "IF" expr statement ("LIES!" statement)OPT [ifthenelse]
+   | "EXPERTS" "CLAIM" ident "TO" "BE" expr [ass]
+   | "YOU" "WON'T" "WANT" "TO" "MISS" expr [print]
+   | "LATEST" "NEWS" "ON" [prompt]
+   | "SHOCKING" "DEVELOPMENT" expr
+   .
+expr
+   : ident "OF" expr LIST [fncall]
+   | "TOTALLY" "RIGHT" [true]
+   | "COMPLETELY" "WRONG" [false]
+   | expr "AND" expr [and]
+   | expr "OR" expr [or]
+   | expr "PLUS" expr [add]
+   | expr "MINUS" expr [sub]
+   | expr "TIMES" expr [times]
+   | expr "DIVIDED" "BY" expr [div]
+   | expr "MODULO" expr [mod]
+   | expr "IS" "ACTUALLY" expr [eq]
+   | expr "BEATS" expr [gt]
+   | expr "SMALLER" "THAN" expr [lt]
+   | "(" expr ")"
+   | int
+   | char
+   | ident
+   .

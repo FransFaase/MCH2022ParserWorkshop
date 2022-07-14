@@ -195,6 +195,8 @@ When the 'evaluate' button is clicked, the abstract syntax tree is evaluated
 according to the annotations of the nodes and the basic values. Below the
 supported annotations are mentioned and their function is explained:
 <ul>
+<li><tt>true</tt>: Return 'true'
+<li><tt>false</tt>: Return 'false'
 <li><tt>add</tt>: Add the values of the two child nodes.
 <li><tt>sub</tt>: Substract the values of the two child nodes.
 <li><tt>times</tt>: Multiplies the values of the two child nodes.
@@ -291,7 +293,7 @@ function gcd(x, y)
       x = y;
       y = c;
    od
-   x
+   x;
 }
 a = 345;
 b = 555;

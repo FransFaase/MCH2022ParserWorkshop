@@ -37,7 +37,7 @@ var IParse = (function() {
 				for (var i = 0; i < this.children.length; i++)
 				{
 					if (i > 0)
-						s += ","
+						s += ", "
 					if (this.children[i] == undefined)
 						s += "<NULL>"
 					else
@@ -89,6 +89,18 @@ var IParse = (function() {
 		if (rule.next != undefined)
 			s += rule.next.print()
 		return s
+	}
+	
+	function is_ident(s)
+	{
+		if (!ident_start_char(s.charCodeAt(0)))
+			return false
+		for (var i = 1; i < s.length; i++)
+		{	var ch = s.charCodeAt(i)
+			if (!ident_start_char(ch) && (ch < 48 || ch > 57))
+				return false
+		}
+		return true
 	}
 	
 	function make_rule(children, nr, grammar, in_nt)
@@ -156,7 +168,7 @@ var IParse = (function() {
 		{
 			result.kind = RK_LIT
 			result.value = rule.value
-			if (ident_start_char(rule.value.charCodeAt(0)))
+			if (is_ident(rule.value))
 				grammar.add_keyword(rule.value)
 			result.print = function(){ return " lit " + this.value + print_rule_options(this); }
 	
@@ -560,7 +572,7 @@ var IParse = (function() {
 				return true
 			restore_pos(sp)
 			expecting(s + " (keyword)")
-			return false
+//			return false
 		}
 		if (pos + s.length <= buffer.length && buffer.substr(pos, s.length) === s)
 		{
