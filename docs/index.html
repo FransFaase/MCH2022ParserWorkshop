@@ -102,7 +102,7 @@ div.hidden { display: none; }
 (type '=' in the input field above to see the answer.)
 <p>
 <div id="button1text" class="hidden">
-Most of use when we read the text '3&nbsp;+&nbsp;4' will immediately think
+Most of us when we read the text '3&nbsp;+&nbsp;4' will immediately think
 about seven as the answer. To arrive at this answer, we have read the symbol
 '3' and realized that it stands for the number three. Likewise we read four
 for the symbol '4'. We also have been taught that the symbol '+' stands for
@@ -134,7 +134,7 @@ You can force one of the two interpretations by using round brackets:
 <li>(3 + 2) * 2 - 1 will return nine
 <li>3 + (2 * 2) - 1 will return six
 </ul>
-Try enter these expression in the input field of the previous paragraph to see
+Try enter these expression in the input field of the previous section to see
 which operator priorities are implemented in this expression evaluator.
 <p>
 </div> <button id="button2" onclick="showHide(this)">show</button>
@@ -144,7 +144,7 @@ which operator priorities are implemented in this expression evaluator.
 <div id="button3text" class="hidden">
 2/2 is one and twelve divided by one is twelve. But 12 divided by 2 is six and
 six divided again by 2 is three. Assuming that spaces have no semantic meaning,
-than the question here is, whether the divide operator is left or right
+than the question here is whether the divide operator is left or right
 associative. Depending on this, the brackets are thought to be placed as:
 <ul>
 <li>Left associative: (12 / 2) / 2
@@ -166,7 +166,9 @@ the expression is not correct, three question marks are displayed.
 Such a tree is also called an abstract syntax tree, because it abstracts from
 the concrete syntax using characters. From the syntax tree, one cannot see if
 brackets were used in the input or not in case they do not make any difference
-in how the expression should be calculated. To calculate the value of the
+in how the expression should be calculated.
+<p>
+To calculate the value of the
 syntax tree below, find a node that only has numbers below them and replace
 that node by the result of applying the operation to the numbers. Repeat this
 until there is no such node any more.
@@ -204,8 +206,8 @@ diagrams for arithmetic expressions can be found in
 <a href="https://www.sigmdel.ca/michel/program/delphi/parser/parser1_en.html"
 >Parsing a Simplified Grammar</A>. (This page also contains some production
 rules, but these production rules are incorrect.)
-Railroad diagrams are nice to explain a grammar, but for specifying them, you
-also need some tool that can interpret them.
+Railroad diagrams are nice to explain a grammar, but if you want to use them
+for actually parsing some input you need some tool that can interpret them.
 <p>
 In the rest of this workshop we are going to work with grammars that are
 specified with production rules.
@@ -253,7 +255,7 @@ parseExample("Terminals")
 <div id="button7text" class="hidden">
 Two other types of terminals in programming languages are literals and keyword.
 In a grammar we can define these by placing some text in between double
-quotes. If the text starts with an alphabetic character, it is taken as a
+quotes. If the text consists of only alphabetic characters, it is taken as a
 keyword. (Sometimes keywords are also called reserved words.) Keywords usually
 overlap with identifiers. It is thus logical to exclude keywords from the
 identifiers. This can be tested in the input by replacing the <tt>a</tt> by
@@ -286,13 +288,15 @@ expression. In this grammar the non-terminal <tt>expr</tt> is a non-terminal.
 (Actually, the text <tt>root</tt> is also a non-terminal. A special one that
 denotes the start of the grammar.) The non-terminal <tt>expr</tt> is used in
 the first rule to represent the experssion that is followed by an equal sign.
-The last two rules specify what the expression may consist of either
+The last two rules specify that the expression may consist of either
 integer followed by a plus sign and another integer or a single integer.
 <p>
 In our grammar definition, the order of the rules does matter. The first
 grammar rule of a non-terminal that parses a text takes precedence over
 following rules. If one swaps the last two rules in the example below, the
 input will no longer be parsed.
+<p>
+Note that in the output the plus sign is not shown.
 <p>
 </div> <button id="button8" onclick="showHide(this)">show</button>
 <p>
@@ -318,7 +322,7 @@ parseExample("Grammar1")
 <div id="button9text" class="hidden">
 In the grammar below a grammar rule with a minus sign is included for
 substraction. Replace the plus sign in the input with a minus sign to
-see the effect in the output. Note that the resultint output is the same.
+see the effect in the output. Note that the resulting output is the same.
 See next section for how to distinguish between them.
 <p>
 </div> <button id="button9" onclick="showHide(this)">show</button>
@@ -346,7 +350,7 @@ parseExample("Grammar2")
 <div id="button9btext" class="hidden">
 To make a difference between these two rules in the abstract syntax tree, we
 have added the words <tt>add</tt> and <tt>sub</tt> between square brackets at
-the end of the rule. Replace the plus sign in the input with a minus sign to
+the end of the rules. Replace the plus sign in the input with a minus sign to
 see the effect in the output.
 <p>
 </div> <button id="button9b" onclick="showHide(this)">show</button>
@@ -436,15 +440,15 @@ evalExample("Grammar4")
 <h2>Extensions: SEQ, OPT, CHAIN, and LIST</h2>
 
 <div id="button12text" class="hidden">
-To avoid having to introduce many non-terminals for common languages such as
-sequences and optional elements, a number of extensions are introduced.
-First of all, round brackets can be used to make sub rules. The keyword
-<tt>SEQ</tt> can be used express that the element before it can occur one or
-more times. The keyword <tt>OPT</tt> can be used to indicate that the element
-is optional. The keyword <tt>CHAIN</tt> can be used define a chain of one or
-more elements separated with the literal that follows the keyword. The keyword
-<tt>LIST</tt> is equivalent with a sequence of elements chained with commas.
-The <tt>OPT</tt> keyword can be combined with the other keywords.
+To avoid having to introduce many non-terminals for common language constructs
+such as sequences and optional elements, a number of extensions are introduced.
+First of all, round brackets can be used to make subrules. The keyword
+<tt>SEQ</tt> can be used to express that the element (or subrule) before it can
+occur one or more times. The keyword <tt>OPT</tt> can be used to indicate that
+the element is optional. The keyword <tt>CHAIN</tt> can be used define a chain
+of one or more elements separated with the literal that follows the keyword.
+The keyword <tt>LIST</tt> is equivalent with a sequence of elements chained
+with commas. The <tt>OPT</tt> keyword can be combined with the other keywords.
 <p>
 </div> <button id="button12" onclick="showHide(this)">show</button>
 <p>
@@ -647,12 +651,13 @@ of literate programming using MarkDown files. Traditional literate programming
 works by introducing identifiers for fragments of code and uses subsitution to
 put all the fragments in the right order. Instead of this <a href="https://github.com/FransFaase/IParse#markdownc"
 >the program</a> parsers the fragments and automatically puts them in the right
-order. It also includes some syntax to extend earlier defined structures and
+order. It also introduces some syntax to extend earlier defined structures and
 functions. I started using it for <a href="https://github.com/FransFaase/RawParser#documentation"
 >the documentation</a> of RawParser
 <p>
 <b>JavaScript implentation</b>. Last year, for a similar workshop as this, I
-made a very basic JavaScript implementation
+made a very basic JavaScript implementation embedded in an HTML file. For this
+workshop I placed it in <a href="IParse.js">a single JavaScript file</a>.
 <p>
 </div> <button id="button14" onclick="showHide(this)">show</button>
 
@@ -660,7 +665,7 @@ made a very basic JavaScript implementation
 
 <ul>
 <li><a href="https://info.itemis.com/demo/agl/editor">AGL Editor Demo</a>:
-	A simular approacht, with a more advanced editor (with syntax-colour)
+	A simular approach, with a more advanced editor (with syntax-colour)
 <li><a href="https://en.wikipedia.org/wiki/Parser_combinator"
 	>Parser combinators</a>
 	<ul>

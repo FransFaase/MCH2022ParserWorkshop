@@ -91,15 +91,11 @@ var IParse = (function() {
 		return s
 	}
 	
-	function is_ident(s)
+	function is_keyword(s)
 	{
-		if (!ident_start_char(s.charCodeAt(0)))
-			return false
 		for (var i = 1; i < s.length; i++)
-		{	var ch = s.charCodeAt(i)
-			if (!ident_start_char(ch) && (ch < 48 || ch > 57))
+			if (!ident_start_char(s.charCodeAt(i)))
 				return false
-		}
 		return true
 	}
 	
@@ -168,7 +164,7 @@ var IParse = (function() {
 		{
 			result.kind = RK_LIT
 			result.value = rule.value
-			if (is_ident(rule.value))
+			if (is_keyword(rule.value))
 				grammar.add_keyword(rule.value)
 			result.print = function(){ return " lit " + this.value + print_rule_options(this); }
 	
