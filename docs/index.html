@@ -165,8 +165,8 @@ the expression is not correct, three question marks are displayed.
 <p>
 Such a tree is also called an abstract syntax tree, because it abstracts from
 the concrete syntax using characters. From the syntax tree, one cannot see if
-brackets were used in the input or not in case they do not make any difference
-in how the expression should be calculated.
+brackets were used in the input, except when they do make a difference in how
+the expression should be calculated.
 <p>
 To calculate the value of the
 syntax tree below, find a node that only has numbers below them and replace
@@ -217,8 +217,8 @@ specified with production rules.
 <h2>Terminals</h2>
 
 <div id="button6text" class="hidden">
-Terminals in a formal langual are the like lexical elements of a natural
-language. In a natural language we have word, names, numbers, and punctuation
+Terminals in a formal langual are like the lexical elements of a natural
+language. In a natural language we have words, names, numbers, and punctuation
 marks. In programming language, we have integers, floating point numbers,
 identifiers, strings (a sequence of characters between quotation marks),
 keywords, operators and such.
@@ -253,12 +253,12 @@ parseExample("Terminals")
 <h2>Literals and keywords</h2>
 
 <div id="button7text" class="hidden">
-Two other types of terminals in programming languages are literals and keyword.
-In a grammar we can define these by placing some text in between double
-quotes. If the text consists of only alphabetic characters, it is taken as a
-keyword. (Sometimes keywords are also called reserved words.) Keywords usually
-overlap with identifiers. It is thus logical to exclude keywords from the
-identifiers. This can be tested in the input by replacing the <tt>a</tt> by
+Two other types of terminals in programming languages are literals and
+keywords. In a grammar we can define these by placing some text in between
+double quotes. If the text consists of only alphabetic characters, it is taken
+as a keyword. (Sometimes keywords are also called reserved words.) Keywords
+usually overlap with identifiers. It is thus logical to exclude keywords from
+the identifiers. This can be tested in the input by replacing the <tt>a</tt> by
 <tt>if</tt>. For literals the rule is that the characters should appear
 directly after each other, without space between them. This can be tested in
 the input by inserting a space between the two colons.
@@ -381,9 +381,9 @@ numbers. In the grammar below, the grammar rules have been slightly modified.
 Note that in the second and third rule the first terminal <tt>int</tt> has been
 replaced by the non-terminal <tt>expr</tt>. Rules where the non-terminal
 appears as the first element are called <a href="https://en.wikipedia.org/wiki/Left_recursion"
->left recursuve</a>. If we would have replaced the second terminal <tt>int</tt>
+>left recursive</a>. If we would have replaced the second terminal <tt>int</tt>
 in both grammar rules with <tt>expr</tt> instead, we would have gotten right
-recusion. Try this yourself by modifying the grammar.
+recursion. Try this yourself by modifying the grammar.
 <p>
 </div> <button id="button10" onclick="showHide(this)">show</button>
 <p>
@@ -445,9 +445,9 @@ such as sequences and optional elements, a number of extensions are introduced.
 First of all, round brackets can be used to make subrules. The keyword
 <tt>SEQ</tt> can be used to express that the element (or subrule) before it can
 occur one or more times. The keyword <tt>OPT</tt> can be used to indicate that
-the element is optional. The keyword <tt>CHAIN</tt> can be used define a chain
-of one or more elements separated with the literal that follows the keyword.
-The keyword <tt>LIST</tt> is equivalent with a sequence of elements chained
+the element is optional. The keyword <tt>CHAIN</tt> can be used to define a
+chain of one or more elements separated with the literal that follows the
+keyword. The keyword <tt>LIST</tt> is equivalent with a sequence of elements chained
 with commas. The <tt>OPT</tt> keyword can be combined with the other keywords.
 <p>
 </div> <button id="button12" onclick="showHide(this)">show</button>
