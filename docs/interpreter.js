@@ -236,6 +236,17 @@ function interpret(input_tree)
 				gresult += v + "\n"
 				return v
 			}
+			if (ast.name == "shout")
+			{
+				if (ast.children.length != 1)
+				{
+					error_msg = "[shout] should have one child tree"
+					return undefined
+				}
+				var v = eval(ast.children[0], vars)
+				gresult += v.toString().toUpperCase() + "!\n"
+				return v
+			}
 			if (ast.name == "prompt")
 			{
 				if (ast.children.length != 1)

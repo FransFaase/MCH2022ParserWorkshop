@@ -5,7 +5,7 @@ statement
    | "RUMOR" "HAS" "IT" statement SEQ OPT "END" "OF" "STORY"
    | "WHAT" "IF" expr statement ("LIES!" statement)OPT [ifthenelse]
    | "EXPERTS" "CLAIM" ident "TO" "BE" expr [ass]
-   | "YOU" "WON'T" "WANT" "TO" "MISS" expr [print]
+   | "YOU" "WON'T" "WANT" "TO" "MISS" expr [shout]
    | "LATEST" "NEWS" "ON" [prompt]
    | "SHOCKING" "DEVELOPMENT" expr
    .
