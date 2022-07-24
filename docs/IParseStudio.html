@@ -43,9 +43,8 @@ function parse_grammar_input()
  var input_grammar = iparse.parseGrammar(document.P.grammar.value)
  if (input_grammar == false)
  {
- 	document.P.grammar_error.value = iparse.reportExpecting()
- 	document.P.output.value = "(grammar has errors)"
- 	d3Tree({ name:"<Grammar has errors>" })
+    the_grammar = undefined
+ 	parse_input()
  	return
  }
 
@@ -128,7 +127,6 @@ function parse_input()
 	if (the_grammar == undefined)
 	{
 		document.P.output.value = "(grammar has errors)"
-		d3Tree({ name:"<Grammar has errors>" })
 		showTree()
 		return
 	}
@@ -136,7 +134,7 @@ function parse_input()
 	if (input_tree == false)
 	{
 		document.P.output.value = iparse.reportExpecting()
-		d3Tree({ name:"<input has errors>" })
+		showTree()
 		return
 	}
 	document.P.output.value = input_tree != undefined ? input_tree.print() : ""
@@ -155,7 +153,7 @@ function eval_ast()
 function showTree()
 {
 	//document.P.output.value = printx(input_tree.transf())
-	d3Tree(input_tree == undefined ? { name:"<NULL>" } : input_tree == false ? { name:"<input has errors>" } : input_tree.transf(), "tree-container" )
+	d3Tree(the_grammar == undefined ? { name:"<grammar has errors>" } : input_tree == undefined ? { name:"<NULL>" } : input_tree == false ? { name:"<input has errors>" } : input_tree.transf(), "tree-container" )
 }
 
 

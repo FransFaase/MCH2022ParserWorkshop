@@ -284,7 +284,7 @@ parseExample("Literals")
 
 <div id="button8text" class="hidden">
 Below a grammar consisting of three rules is shown to parse a very simple
-expression. In this grammar the non-terminal <tt>expr</tt> is a non-terminal.
+expression. In this grammar the text <tt>expr</tt> is a non-terminal.
 (Actually, the text <tt>root</tt> is also a non-terminal. A special one that
 denotes the start of the grammar.) The non-terminal <tt>expr</tt> is used in
 the first rule to represent the experssion that is followed by an equal sign.
@@ -495,7 +495,7 @@ is to clone <a href="https://github.com/FransFaase/MCH2022ParserWorkshop"
 </ul>
 
 <div id="button13text" class="hidden">
-<b>'Natural' programming languages</b>. Just like natureal languages have things
+<b>'Natural' programming languages</b>. Just like natural languages have things
 in common and follow certain <a href="https://en.wikipedia.org/wiki/Linguistic_universal"
 >universal patterns</a>, the same is true for programming languages. So, lets
 focus on those common patterns. For example, if a programming language has
@@ -520,12 +520,12 @@ shift-reduce conflicts.
 <p>
 <b>Memory is not an issue</b>. Nowadays it is no problem to load a source
 file in memory. Lets just use caching of intermediate results: remember at 
-very location in the file which non-terminals are parsed or not.
+every location in the file which non-terminals are parsed or not.
 <p>
 <b>Compiled not always faster</b>. I made an attempt to modify the interpreter
 into a compiler that would generate C code (by simply applying partial
-evaluation). First of all, compiling this code took a long time, and it also
-executed slower. Why? I guess it caused more processor cache misses.
+evaluation). Compiling this code took a long time. Secondly and it also
+executed slower. Why? I guess it caused more CPU cache misses.
 <p>
 <b>Hard-coded scanner</b>. Lets just start with a basic set of common terminals
 used in programming languages and use a hard-coded scanner.
@@ -622,7 +622,7 @@ rules.
 <div id="button14text" class="hidden">
 <b>Single file C program</b>. This was the version it all started with. The
 realization that with some caching, you can implement a reasonable fast
-parser, without having to do much complicated things. This version does
+parser without having to do many complicated things. This version does
 include an attempt to also deal with context scoping rules and identifier
 matching. However, it was bit too simplistic.
 <p>
@@ -643,8 +643,8 @@ translations.
 >single C-file</A>, which, by example, shows how a grammar driven, scannerless
 parser can be implemented. It was also an intended to be educational by
 extensive comments and incremental exposition with examples with unit tests.
-Because I found the requirements that C put on the order of statements a bit
-restrictive, which lead me to the following.
+However I found the requirements that C put on the order of statements a bit
+restrictive.
 <p>
 <b>Literate programming with MarkDown</b>. I came up with the idea for a form
 of literate programming using MarkDown files. Traditional literate programming
@@ -655,7 +655,7 @@ order. It also introduces some syntax to extend earlier defined structures and
 functions. I started using it for <a href="https://github.com/FransFaase/RawParser#documentation"
 >the documentation</a> of RawParser
 <p>
-<b>JavaScript implentation</b>. Last year, for a similar workshop as this, I
+<b>JavaScript implentation</b>. Last year, for a similar workshop like this, I
 made a very basic JavaScript implementation embedded in an HTML file. For this
 workshop I placed it in <a href="IParse.js">a single JavaScript file</a>.
 <p>
