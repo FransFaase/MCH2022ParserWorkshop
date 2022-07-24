@@ -126,6 +126,7 @@ function parse_input()
 {
 	if (the_grammar == undefined)
 	{
+		document.P.grammar_error.value = iparse.reportExpecting()
 		document.P.output.value = "(grammar has errors)"
 		showTree()
 		return
